@@ -12,6 +12,7 @@ import '@/styles/notion.css'
 import '@/styles/prism-theme.css'
 
 import type { Metadata, Viewport } from 'next'
+import Script from 'next/script'
 import type { ReactNode } from 'react'
 
 import * as config from '@/lib/config'
@@ -85,6 +86,25 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang='en' suppressHydrationWarning>
       <body>
         <Providers>{children}</Providers>
+
+        <Script id='flowise-chatbot' type='module' strategy='lazyOnload'>
+          {`
+            import Chatbot from 'https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js';
+            Chatbot.init({
+              chatflowid: '3061397c-23e3-42b5-a24d-c1d85083695b',
+              apiHost: 'https://flowise.cfy0.abd.dev',
+              theme: {
+                chatWindow: {
+                  footer: {
+                    text: 'Powered by',
+                    company: 'abd.dev',
+                    companyLink: 'https://abd.dev',
+                  }
+                }
+              }
+            });
+          `}
+        </Script>
       </body>
     </html>
   )

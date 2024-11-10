@@ -24,7 +24,7 @@ import { searchNotion } from '@/lib/search-notion'
 import { useDarkMode } from '@/lib/use-dark-mode'
 
 import { Footer } from './Footer'
-import { GitHubShareButton } from './GitHubShareButton'
+// import { GitHubShareButton } from './GitHubShareButton'
 import { NotionPageHeader } from './NotionPageHeader'
 import { PageAside } from './PageAside'
 
@@ -272,7 +272,7 @@ export function NotionPage({
         footer={<Footer />}
       />
 
-      <GitHubShareButton />
+      {/* <GitHubShareButton /> */}
     </>
   )
 }
