@@ -28,6 +28,8 @@ import {
   posthogId
 } from '@/lib/config'
 
+import Script from 'next/script'
+
 if (!isServer) {
   bootstrap()
 }
@@ -61,5 +63,27 @@ export default function App({ Component, pageProps }: AppProps) {
     }
   }, [router.events])
 
-  return <Component {...pageProps} />
+  return (
+    <>
+      <Component {...pageProps} />
+      <Script type="module" strategy="lazyOnload">
+        {`
+          import Chatbot from 'https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js';
+          Chatbot.init({
+            chatflowid: '3061397c-23e3-42b5-a24d-c1d85083695b',
+            apiHost: 'https://flowise.cfy0.abd.dev',
+            theme: {
+              chatWindow: {
+                footer: {
+                  text: 'Powered by',
+                  company: 'abd.dev',
+                  companyLink: 'https://abd.dev',
+                }
+              }
+            }
+          });
+        `}
+      </Script>
+    </>
+  );
 }
