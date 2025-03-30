@@ -11,6 +11,8 @@ import '@/styles/notion.css'
 // global style overrides for prism theme (optional)
 import '@/styles/prism-theme.css'
 
+import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
 import type { ReactNode } from 'react'
@@ -105,6 +107,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             });
           `}
         </Script>
+
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
