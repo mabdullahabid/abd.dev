@@ -14,6 +14,8 @@ import 'styles/notion.css'
 import 'styles/prism-theme.css'
 
 import type { AppProps } from 'next/app'
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import * as Fathom from 'fathom-client'
 import { useRouter } from 'next/router'
 import Script from 'next/script'
@@ -83,6 +85,8 @@ export default function App({ Component, pageProps }: AppProps) {
           });
         `}
       </Script>
+      <Analytics />
+      <SpeedInsights />
     </>
   );
 }
