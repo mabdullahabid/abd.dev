@@ -3,9 +3,11 @@
 import * as Fathom from 'fathom-client'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { ThemeProvider, useTheme } from 'next-themes'
-import type PostHog from 'posthog-js-lite'
+import posthog from 'posthog-js'
 import * as React from 'react'
 
+import { analytics } from '@/lib/analytics'
+import { enableAnalyticsDebug } from '@/lib/analytics-debug'
 import { bootstrap } from '@/lib/bootstrap-client'
 import { fathomConfig, fathomId, posthogConfig, posthogId } from '@/lib/config'
 
@@ -62,37 +64,22 @@ function ThemeColor() {
 function Analytics() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const posthogRef = React.useRef<PostHog | undefined>(undefined)
   const previousUrlRef = React.useRef<string | undefined>(undefined)
   const url = [pathname, searchParams?.toString()].filter(Boolean).join('?')
 
   React.useEffect(() => {
-    let isDisposed = false
-
     bootstrap()
 
     if (fathomId) {
       Fathom.load(fathomId, fathomConfig)
     }
 
-    const posthogApiKey = posthogId
+    if (posthogId) {
+      posthog.init(posthogId, posthogConfig)
 
-    if (posthogApiKey) {
-      void import('posthog-js-lite').then(({ default: PostHogClient }) => {
-        if (isDisposed) {
-          return
-        }
-
-        const posthog = new PostHogClient(posthogApiKey, posthogConfig)
-        posthog.capture('$pageview')
-        posthogRef.current = posthog
-      })
-    }
-
-    return () => {
-      isDisposed = true
-      void posthogRef.current?._shutdown()
-      posthogRef.current = undefined
+      if (process.env.NODE_ENV === 'development') {
+        enableAnalyticsDebug()
+      }
     }
   }, [])
 
@@ -112,7 +99,12 @@ function Analytics() {
       Fathom.trackPageview()
     }
 
-    posthogRef.current?.capture('$pageview')
+    if (posthogId) {
+      // Use our enhanced page view tracking instead of basic capture
+      analytics.trackPageView({
+        referrer: document.referrer || undefined
+      })
+    }
   }, [url])
 
   return null

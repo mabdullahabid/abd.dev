@@ -1,5 +1,6 @@
 import * as React from 'react'
 
+import { analytics } from '@/lib/analytics'
 import * as config from '@/lib/config'
 import { GitHubIcon } from '@/lib/icons/github'
 import { LinkedInIcon } from '@/lib/icons/linkedin'
@@ -17,9 +18,18 @@ export function FooterImpl() {
   const onToggleDarkMode = React.useCallback(
     (e: any) => {
       e.preventDefault()
+      const currentTheme = isDarkMode ? 'dark' : 'light'
+      const newTheme = isDarkMode ? 'light' : 'dark'
+
+      // Track theme toggle
+      analytics.trackThemeToggle({
+        from_theme: currentTheme,
+        to_theme: newTheme
+      })
+
       toggleDarkMode()
     },
-    [toggleDarkMode]
+    [isDarkMode, toggleDarkMode]
   )
 
   return (
@@ -50,6 +60,13 @@ export function FooterImpl() {
             title={`X @${config.twitter}`}
             target='_blank'
             rel='noopener noreferrer'
+            onClick={() =>
+              analytics.trackSocialClick({
+                platform: 'twitter',
+                location: 'footer',
+                url: `https://twitter.com/${config.twitter}`
+              })
+            }
           >
             <TwitterIcon />
           </a>
@@ -62,6 +79,13 @@ export function FooterImpl() {
             title={`GitHub @${config.github}`}
             target='_blank'
             rel='noopener noreferrer'
+            onClick={() =>
+              analytics.trackSocialClick({
+                platform: 'github',
+                location: 'footer',
+                url: `https://github.com/${config.github}`
+              })
+            }
           >
             <GitHubIcon />
           </a>
@@ -74,6 +98,13 @@ export function FooterImpl() {
             title={`LinkedIn ${config.author}`}
             target='_blank'
             rel='noopener noreferrer'
+            onClick={() =>
+              analytics.trackSocialClick({
+                platform: 'linkedin',
+                location: 'footer',
+                url: `https://www.linkedin.com/in/${config.linkedin}`
+              })
+            }
           >
             <LinkedInIcon />
           </a>
