@@ -16,6 +16,7 @@ import { EmbeddedTweet, TweetNotFound, TweetSkeleton } from 'react-tweet'
 import { useSearchParam } from 'react-use'
 
 import type * as types from '@/lib/types'
+import { analytics } from '@/lib/analytics'
 import * as config from '@/lib/config'
 import { mapImageUrl } from '@/lib/map-image-url'
 import { getCanonicalPageUrl, mapPageUrl } from '@/lib/map-page-url'
@@ -234,6 +235,117 @@ export function NotionPage({
   const showTableOfContents = !!isBlogPost
   const minTableOfContentsItems = 3
 
+  // Get page title and metadata for tracking
+  const pageTitle = React.useMemo(() => 
+    block ? getBlockTitle(block, recordMap) || site?.name : '', 
+    [block, recordMap, site?.name]
+  )
+
+  // Determine page type for analytics
+  const pageType = React.useMemo(() => {
+    if (!block) return 'other'
+    if (pageId === site?.rootNotionPageId) return 'home'
+    if (isBlogPost) return 'blog_post'
+    return 'other'
+  }, [block, pageId, site?.rootNotionPageId, isBlogPost])
+
+  // Calculate reading time estimate for blog posts
+  const readingTimeEstimate = React.useMemo(() => {
+    if (!isBlogPost || !recordMap) return undefined
+    
+    // Extract text content from blocks to estimate reading time
+    let textContent = ''
+    for (const blockWrapper of Object.values(recordMap.block || {})) {
+      const blockData = blockWrapper?.value
+      if (blockData?.properties?.title) {
+        textContent += blockData.properties.title[0]?.[0] || ''
+      }
+    }
+    
+    return analytics.estimateReadingTime(textContent)
+  }, [isBlogPost, recordMap])
+
+  // Enhanced page view tracking with metadata
+  React.useEffect(() => {
+    if (!block || router.isFallback) return
+
+    const publishDate = getPageProperty<string>('Published', block, recordMap)
+    
+    analytics.trackPageView({
+      page_title: pageTitle,
+      page_type: pageType,
+      reading_time_estimate: readingTimeEstimate
+    })
+
+    // Track blog post specific data
+    if (isBlogPost && pageTitle) {
+      analytics.trackBlogPost({
+        post_title: pageTitle,
+        post_id: pageId,
+        estimated_reading_time: readingTimeEstimate,
+        publish_date: publishDate
+      })
+    }
+  }, [block, pageTitle, pageType, readingTimeEstimate, isBlogPost, pageId, recordMap, router.isFallback])
+
+  // Initialize scroll tracking for content engagement
+  React.useEffect(() => {
+    if (router.isFallback || !pageTitle) return
+
+    const cleanup = analytics.initializeScrollTracking(pageTitle, pageType)
+    
+    // Track time on page at intervals
+    const timeIntervals = [30_000, 60_000, 120_000, 300_000] // 30s, 1m, 2m, 5m
+    const timeouts: NodeJS.Timeout[] = []
+    
+    for (const interval of timeIntervals) {
+      const timeout = setTimeout(() => {
+        analytics.trackContentEngagement({
+          event_type: 'time_on_page',
+          value: interval / 1000,
+          page_title: pageTitle,
+          page_type: pageType
+        })
+      }, interval)
+      timeouts.push(timeout)
+    }
+
+    // Track page leave when component unmounts
+    return () => {
+      analytics.trackPageLeave(pageTitle, pageType)
+      cleanup?.()
+      for (const timeout of timeouts) {
+        clearTimeout(timeout)
+      }
+    }
+  }, [pageTitle, pageType, router.isFallback])
+
+  // Track external link clicks
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const handleLinkClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      const link = target.closest('a')
+      
+      if (link && link.href) {
+        const url = new URL(link.href)
+        const currentDomain = window.location.hostname
+        const isExternal = url.hostname !== currentDomain
+        
+        analytics.trackLinkClick({
+          link_type: isExternal ? 'external' : 'internal',
+          destination_url: link.href,
+          link_text: link.textContent || undefined,
+          location: 'content'
+        })
+      }
+    }
+
+    document.addEventListener('click', handleLinkClick)
+    return () => document.removeEventListener('click', handleLinkClick)
+  }, [])
+
   const pageAside = React.useMemo(
     () => (
       <PageAside
@@ -255,7 +367,7 @@ export function NotionPage({
     return <Page404 site={site} pageId={pageId} error={error} />
   }
 
-  const title = getBlockTitle(block, recordMap) || site.name
+  const title = pageTitle || site?.name || ''
 
   console.log('notion page', {
     isDev: config.isDev,

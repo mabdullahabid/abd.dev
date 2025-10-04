@@ -22,6 +22,8 @@ import Script from 'next/script'
 import posthog from 'posthog-js'
 import * as React from 'react'
 
+import { analytics } from '@/lib/analytics'
+import { enableAnalyticsDebug } from '@/lib/analytics-debug'
 import { bootstrap } from '@/lib/bootstrap-client'
 import {
   fathomConfig,
@@ -45,7 +47,10 @@ export default function App({ Component, pageProps }: AppProps) {
       }
 
       if (posthogId) {
-        posthog.capture('$pageview')
+        // Use our enhanced page view tracking instead of basic capture
+        analytics.trackPageView({
+          referrer: document.referrer || undefined
+        })
       }
     }
 
@@ -55,6 +60,10 @@ export default function App({ Component, pageProps }: AppProps) {
 
     if (posthogId) {
       posthog.init(posthogId, posthogConfig)
+      // Enable debug mode in development
+      if (process.env.NODE_ENV === 'development') {
+        enableAnalyticsDebug()
+      }
     }
 
     router.events.on('routeChangeComplete', onRouteChangeComplete)

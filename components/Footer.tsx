@@ -9,6 +9,7 @@ import { IoMoonSharp } from '@react-icons/all-files/io5/IoMoonSharp'
 import { IoSunnyOutline } from '@react-icons/all-files/io5/IoSunnyOutline'
 import * as React from 'react'
 
+import { analytics } from '@/lib/analytics'
 import * as config from '@/lib/config'
 import { useDarkMode } from '@/lib/use-dark-mode'
 
@@ -24,9 +25,18 @@ export function FooterImpl() {
   const onToggleDarkMode = React.useCallback(
     (e: any) => {
       e.preventDefault()
+      const currentTheme = isDarkMode ? 'dark' : 'light'
+      const newTheme = isDarkMode ? 'light' : 'dark'
+      
+      // Track theme toggle
+      analytics.trackThemeToggle({
+        from_theme: currentTheme,
+        to_theme: newTheme
+      })
+      
       toggleDarkMode()
     },
-    [toggleDarkMode]
+    [isDarkMode, toggleDarkMode]
   )
 
   React.useEffect(() => {
@@ -61,6 +71,11 @@ export function FooterImpl() {
             title={`Twitter @${config.twitter}`}
             target='_blank'
             rel='noopener noreferrer'
+            onClick={() => analytics.trackSocialClick({
+              platform: 'twitter',
+              location: 'footer',
+              url: `https://twitter.com/${config.twitter}`
+            })}
           >
             <FaTwitter />
           </a>
@@ -72,6 +87,11 @@ export function FooterImpl() {
             href={config.mastodon}
             title={`Mastodon ${config.getMastodonHandle()}`}
             rel='me'
+            onClick={() => analytics.trackSocialClick({
+              platform: 'other',
+              location: 'footer',
+              url: config.mastodon || ''
+            })}
           >
             <FaMastodon />
           </a>
@@ -84,6 +104,11 @@ export function FooterImpl() {
             title={`Zhihu @${config.zhihu}`}
             target='_blank'
             rel='noopener noreferrer'
+            onClick={() => analytics.trackSocialClick({
+              platform: 'other',
+              location: 'footer',
+              url: `https://zhihu.com/people/${config.zhihu}`
+            })}
           >
             <FaZhihu />
           </a>
@@ -96,6 +121,11 @@ export function FooterImpl() {
             title={`GitHub @${config.github}`}
             target='_blank'
             rel='noopener noreferrer'
+            onClick={() => analytics.trackSocialClick({
+              platform: 'github',
+              location: 'footer',
+              url: `https://github.com/${config.github}`
+            })}
           >
             <FaGithub />
           </a>
@@ -108,6 +138,11 @@ export function FooterImpl() {
             title={`LinkedIn ${config.author}`}
             target='_blank'
             rel='noopener noreferrer'
+            onClick={() => analytics.trackSocialClick({
+              platform: 'linkedin',
+              location: 'footer',
+              url: `https://www.linkedin.com/in/${config.linkedin}`
+            })}
           >
             <FaLinkedin />
           </a>
@@ -120,6 +155,11 @@ export function FooterImpl() {
             title={`Newsletter ${config.author}`}
             target='_blank'
             rel='noopener noreferrer'
+            onClick={() => analytics.trackSocialClick({
+              platform: 'email',
+              location: 'footer',
+              url: config.newsletter || ''
+            })}
           >
             <FaEnvelopeOpenText />
           </a>
@@ -132,6 +172,11 @@ export function FooterImpl() {
             title={`YouTube ${config.author}`}
             target='_blank'
             rel='noopener noreferrer'
+            onClick={() => analytics.trackSocialClick({
+              platform: 'other',
+              location: 'footer',
+              url: `https://www.youtube.com/${config.youtube}`
+            })}
           >
             <FaYoutube />
           </a>

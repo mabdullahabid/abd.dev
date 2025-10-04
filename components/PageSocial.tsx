@@ -1,6 +1,7 @@
 import type * as React from 'react'
 import cs from 'classnames'
 
+import { analytics } from '@/lib/analytics'
 import * as config from '@/lib/config'
 
 import styles from './PageSocial.module.css'
@@ -69,6 +70,17 @@ const socialLinks: SocialLink[] = [
   }
 ].filter(Boolean)
 
+const handleSocialClick = (action: SocialLink) => {
+  analytics.trackSocialClick({
+    platform: action.name === 'twitter' ? 'twitter' : 
+              action.name === 'github' ? 'github' :
+              action.name === 'linkedin' ? 'linkedin' :
+              action.name === 'newsletter' ? 'email' : 'other',
+    location: 'content',
+    url: action.href || ''
+  })
+}
+
 export function PageSocial() {
   return (
     <div className={styles.pageSocial}>
@@ -80,6 +92,7 @@ export function PageSocial() {
           title={action.title}
           target='_blank'
           rel='noopener noreferrer'
+          onClick={() => handleSocialClick(action)}
         >
           <div className={styles.actionBg}>
             <div className={styles.actionBgPane} />
