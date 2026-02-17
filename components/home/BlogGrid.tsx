@@ -24,58 +24,64 @@ export default function BlogGrid({ posts }: BlogGridProps) {
 
   useEffect(() => {
     const initAnimations = async () => {
-      const gsap = (await import('gsap')).default
-      const ScrollTrigger = (await import('gsap/ScrollTrigger')).default
-      gsap.registerPlugin(ScrollTrigger)
+      try {
+        const gsap = (await import('gsap')).default
+        const ScrollTrigger = (await import('gsap/ScrollTrigger')).default
+        gsap.registerPlugin(ScrollTrigger)
 
-      gsap.from(titleRef.current, {
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 85%',
-        },
-        duration: 0.8,
-        opacity: 0,
-        y: 30,
-        ease: 'power3.out',
-      })
+        gsap.fromTo(
+          titleRef.current,
+          { opacity: 0, y: 30 },
+          {
+            scrollTrigger: { trigger: sectionRef.current, start: 'top 85%' },
+            duration: 0.8,
+            opacity: 1,
+            y: 0,
+            ease: 'power3.out',
+          }
+        )
 
-      const cards = gridRef.current?.children
-      if (cards) {
-        gsap.from(Array.from(cards), {
-          scrollTrigger: {
-            trigger: gridRef.current,
-            start: 'top 85%',
-          },
-          duration: 0.6,
-          opacity: 0,
-          y: 30,
-          stagger: 0.1,
-          ease: 'power3.out',
-        })
+        const cards = gridRef.current?.children
+        if (cards && cards.length > 0) {
+          gsap.fromTo(
+            Array.from(cards),
+            { opacity: 0, y: 30 },
+            {
+              scrollTrigger: { trigger: gridRef.current, start: 'top 85%' },
+              duration: 0.6,
+              opacity: 1,
+              y: 0,
+              stagger: 0.1,
+              ease: 'power3.out',
+            }
+          )
+        }
+      } catch {
+        // GSAP failed - elements visible via CSS
       }
-
-      // Hover animations for cards
-      const cardElements = gridRef.current?.querySelectorAll(`.${styles.blogCard}`)
-      cardElements?.forEach((card) => {
-        card.addEventListener('mouseenter', () => {
-          gsap.to(card, { duration: 0.3, y: -4, ease: 'power2.out' })
-        })
-        card.addEventListener('mouseleave', () => {
-          gsap.to(card, { duration: 0.3, y: 0, ease: 'power2.out' })
-        })
-      })
     }
 
-    initAnimations()
+    if (posts && posts.length > 0) {
+      initAnimations()
+    }
   }, [posts])
 
-  if (!posts || posts.length === 0) return null
+  if (!posts || posts.length === 0) {
+    return (
+      <section ref={sectionRef} className={styles.blog}>
+        <div className={styles.blogContainer}>
+          <h2 className={styles.sectionTitle}>Latest Posts</h2>
+          <p className={styles.aboutText}>Posts coming soon...</p>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section ref={sectionRef} className={styles.blog}>
       <div className={styles.blogContainer}>
         <h2 ref={titleRef} className={styles.sectionTitle}>
-          // Latest Posts
+          Latest Posts
         </h2>
         <div ref={gridRef} className={styles.blogGrid}>
           {posts.slice(0, 6).map((post) => (

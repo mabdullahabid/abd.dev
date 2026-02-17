@@ -17,36 +17,42 @@ export default function About() {
 
   useEffect(() => {
     const initAnimations = async () => {
-      const gsap = (await import('gsap')).default
-      const ScrollTrigger = (await import('gsap/ScrollTrigger')).default
-      gsap.registerPlugin(ScrollTrigger)
+      try {
+        const gsap = (await import('gsap')).default
+        const ScrollTrigger = (await import('gsap/ScrollTrigger')).default
+        gsap.registerPlugin(ScrollTrigger)
 
-      // Animate title
-      gsap.from(titleRef.current, {
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 85%',
-        },
-        duration: 0.8,
-        opacity: 0,
-        y: 30,
-        ease: 'power3.out',
-      })
+        // Use 'to' with autoAlpha for safe animation
+        // Elements start visible, GSAP handles the reveal
+        gsap.fromTo(
+          titleRef.current,
+          { opacity: 0, y: 30 },
+          {
+            scrollTrigger: { trigger: sectionRef.current, start: 'top 85%' },
+            duration: 0.8,
+            opacity: 1,
+            y: 0,
+            ease: 'power3.out',
+          }
+        )
 
-      // Animate content children
-      const children = contentRef.current?.children
-      if (children) {
-        gsap.from(Array.from(children), {
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 75%',
-          },
-          duration: 0.6,
-          opacity: 0,
-          y: 25,
-          stagger: 0.15,
-          ease: 'power3.out',
-        })
+        const children = contentRef.current?.children
+        if (children) {
+          gsap.fromTo(
+            Array.from(children),
+            { opacity: 0, y: 25 },
+            {
+              scrollTrigger: { trigger: sectionRef.current, start: 'top 75%' },
+              duration: 0.6,
+              opacity: 1,
+              y: 0,
+              stagger: 0.15,
+              ease: 'power3.out',
+            }
+          )
+        }
+      } catch {
+        // GSAP failed - elements visible via CSS
       }
     }
 
@@ -57,7 +63,7 @@ export default function About() {
     <section ref={sectionRef} className={styles.about}>
       <div className={styles.aboutContainer}>
         <h2 ref={titleRef} className={styles.sectionTitle}>
-          // About
+          About
         </h2>
         <div ref={contentRef} className={styles.aboutContent}>
           <p className={styles.aboutText}>
