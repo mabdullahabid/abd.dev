@@ -18,8 +18,7 @@ export default function Hero() {
       // Split heading text into characters
       if (headingRef.current) {
         const text = headingRef.current.textContent || ''
-        headingRef.current.innerHTML = text
-          .split('')
+        headingRef.current.innerHTML = Array.from(text)
           .map((char) =>
             char === ' '
               ? '<span class="char">&nbsp;</span>'
@@ -58,7 +57,7 @@ export default function Hero() {
     <section ref={heroRef} className={styles.hero}>
       <div className={styles.heroContent}>
         <h1 ref={headingRef} className={styles.heroHeading}>
-          Hello World, I'm Abdullah
+          Hello World 👋, I'm Abdullah
         </h1>
         <p ref={subtitleRef} className={styles.heroSubtitle}>
           Tech Leader &amp; Builder - CEO @ Autonomous, Founder @ Memox.
