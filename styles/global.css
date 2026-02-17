@@ -13,12 +13,65 @@ html {
   margin: 0;
 }
 
-body {
-  --notion-font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+/* CSS Custom Properties for Design System */
+:root {
+  /* Typography */
+  --font-body: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
     'Droid Sans', 'Helvetica Neue', 'Noto Sans', sans-serif;
-  font-family: var(--notion-font);
+  --font-heading: 'Space Grotesk', 'Inter', ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+    'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Noto Sans', sans-serif;
+
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 2rem;
+  --space-xl: 4rem;
+  --space-2xl: 8rem;
+}
+
+/* Light Mode Colors (default) */
+:root:not(.dark-mode) {
+  --bg-color: #ffffff;
+  --bg-color-0: #f9fafb;
+  --bg-color-1: #f3f4f6;
+  --fg-color: #1f2937;
+  --fg-color-0: #e5e7eb;
+  --fg-color-1: #d1d5db;
+  --fg-color-2: #9ca3af;
+  --fg-color-3: #6b7280;
+  --fg-color-4: #4b5563;
+  --fg-color-5: #374151;
+}
+
+/* Dark Mode Colors */
+.dark-mode {
+  --bg-color: #121212;
+  --bg-color-0: #1a1a1a;
+  --bg-color-1: #242424;
+  --fg-color: #f9fafb;
+  --fg-color-0: #2a2a2a;
+  --fg-color-1: #3a3a3a;
+  --fg-color-2: #6b7280;
+  --fg-color-3: #9ca3af;
+  --fg-color-4: #d1d5db;
+  --fg-color-5: #e5e7eb;
+}
+
+body {
+  --notion-font: var(--font-body);
+  font-family: var(--font-body);
   overflow-x: hidden;
+  background: var(--bg-color);
+  color: var(--fg-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Headings use Space Grotesk */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
 }
 
 .static-tweet blockquote {
@@ -39,24 +92,30 @@ body {
   caret-color: var(--fg-color);
 }
 
-::-webkit-scrollbar
-{
+::-webkit-scrollbar {
   width: 5px;
   height: 5px;
-  background-color: #F5F5F5;
   background-color: var(--bg-color-1);
 }
 
-::-webkit-scrollbar-thumb
-{
-  border-radius: 10px;
-  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-  background-color: #555;
+::-webkit-scrollbar-thumb {
   border-radius: 10px;
   -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
   background-color: var(--fg-color-1);
 }
 
 ::-webkit-scrollbar-track {           
-    background-color: var(--bg-color);
+  background-color: var(--bg-color);
+}
+
+/* Smooth transitions */
+* {
+  transition-property: background-color, border-color, color;
+  transition-duration: 0.2s;
+  transition-timing-function: ease;
+}
+
+/* But not for animations */
+@keyframes * {
+  transition: none !important;
 }

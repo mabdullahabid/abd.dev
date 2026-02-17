@@ -1,0 +1,21 @@
+.enhancedFooter {
+  position: relative;
+  margin-top: 4rem;
+}
+
+.enhancedFooter::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 800px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--fg-color-2) 50%,
+    transparent
+  );
+}

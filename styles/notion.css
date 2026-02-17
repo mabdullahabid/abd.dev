@@ -403,3 +403,76 @@
 .notion-equation.notion-equation-block{
   align-items: center;
 }
+
+/* Enhanced Typography for Blog Posts */
+.notion-page {
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.notion-title {
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 1.5em;
+}
+
+.notion-h1,
+.notion-h2,
+.notion-h3 {
+  letter-spacing: -0.01em;
+  font-weight: 600;
+  margin-top: 1.5em;
+}
+
+.notion-text {
+  font-size: 1.1em;
+  line-height: 1.75;
+}
+
+/* Enhanced Code Blocks */
+.notion-code {
+  font-size: 0.875em;
+  line-height: 1.6;
+  padding: 1.25em;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: var(--bg-color-0);
+  border: 1px solid var(--fg-color-1);
+}
+
+.dark-mode .notion-code {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Better spacing */
+.notion-list {
+  margin: 0.75em 0;
+}
+
+.notion-list-item {
+  padding: 0.25em 0;
+}
+
+.notion-callout {
+  padding: 1.25em;
+  border-radius: 8px;
+  background: var(--bg-color-0);
+}
+
+/* Smooth transitions */
+.notion-link,
+.notion-collection-card,
+.notion-bookmark {
+  transition: all 0.2s ease;
+}
+
+/* Better image styling */
+.notion-asset-wrapper {
+  margin: 2em 0;
+}
+
+.notion-asset-wrapper img {
+  border-radius: 8px;
+}

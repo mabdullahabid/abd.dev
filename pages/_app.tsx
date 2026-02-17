@@ -12,12 +12,15 @@ import 'styles/global.css'
 import 'styles/notion.css'
 // global style overrides for prism theme (optional)
 import 'styles/prism-theme.css'
+// effects styles
+import 'styles/effects.css'
 
 import type { AppProps } from 'next/app'
 import * as Fathom from 'fathom-client'
 import { useRouter } from 'next/router'
 import { posthog } from 'posthog-js'
 import * as React from 'react'
+import dynamic from 'next/dynamic'
 
 import { bootstrap } from '@/lib/bootstrap-client'
 import {
@@ -27,6 +30,19 @@ import {
   posthogConfig,
   posthogId
 } from '@/lib/config'
+
+// Dynamically import effects to avoid SSR issues
+const SmoothScroll = dynamic(() => import('@/components/effects/SmoothScroll'), {
+  ssr: false,
+})
+
+const CustomCursor = dynamic(() => import('@/components/effects/CustomCursor'), {
+  ssr: false,
+})
+
+const PageTransition = dynamic(() => import('@/components/effects/PageTransition'), {
+  ssr: false,
+})
 
 if (!isServer) {
   bootstrap()
@@ -61,5 +77,13 @@ export default function App({ Component, pageProps }: AppProps) {
     }
   }, [router.events])
 
-  return <Component {...pageProps} />
+  return (
+    <>
+      <SmoothScroll />
+      <CustomCursor />
+      <PageTransition>
+        <Component {...pageProps} />
+      </PageTransition>
+    </>
+  )
 }
