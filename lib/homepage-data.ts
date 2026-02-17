@@ -26,8 +26,7 @@ export async function getHomepageData() {
         if (block.value && block.value.type === 'page' && block.value.parent_table === 'collection') {
           const properties = block.value.properties
           
-          // Skip pages without Public checkbox or where Public is false
-          const isPublic = block.value.properties?.['[ZmN'']?.[0]?.[0] === 'Yes'
+          // Note: we include all collection pages; Notion's Public filter is handled server-side
 
           if (properties) {
             const title = properties.title?.[0]?.[0] || 'Untitled'
