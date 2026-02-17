@@ -15,46 +15,39 @@ export default function Hero() {
 
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
 
-      // Split text into characters for animation
+      // Split heading text into characters
       if (headingRef.current) {
         const text = headingRef.current.textContent || ''
         headingRef.current.innerHTML = text
           .split('')
-          .map((char) => 
-            char === ' ' 
-              ? '<span class="char"> </span>' 
+          .map((char) =>
+            char === ' '
+              ? '<span class="char">&nbsp;</span>'
               : `<span class="char">${char}</span>`
           )
           .join('')
 
-        tl.from('.char', {
-          duration: 0.8,
-          opacity: 0,
-          y: 80,
-          rotateX: -90,
+        // Set initial state and animate
+        gsap.set('.char', { opacity: 0, y: 40, rotateX: -40 })
+        tl.to('.char', {
+          duration: 0.6,
+          opacity: 1,
+          y: 0,
+          rotateX: 0,
           stagger: 0.02,
         })
       }
 
       tl.from(
         subtitleRef.current,
-        {
-          duration: 0.8,
-          opacity: 0,
-          y: 30,
-        },
-        '-=0.4'
+        { duration: 0.6, opacity: 0, y: 20 },
+        '-=0.3'
       )
 
       tl.from(
-        socialsRef.current?.children || [],
-        {
-          duration: 0.6,
-          opacity: 0,
-          y: 20,
-          stagger: 0.1,
-        },
-        '-=0.4'
+        Array.from(socialsRef.current?.children || []),
+        { duration: 0.4, opacity: 0, y: 15, stagger: 0.08 },
+        '-=0.3'
       )
     }
 
@@ -65,10 +58,12 @@ export default function Hero() {
     <section ref={heroRef} className={styles.hero}>
       <div className={styles.heroContent}>
         <h1 ref={headingRef} className={styles.heroHeading}>
-          Hello World 👋🏻, I'm Abdullah
+          Hello World, I'm Abdullah
         </h1>
         <p ref={subtitleRef} className={styles.heroSubtitle}>
-          Tech Leader & Builder — CEO @ Autonomous, Founder @ Memox
+          Tech Leader &amp; Builder - CEO @ Autonomous, Founder @ Memox.
+          <br />
+          Building AI-driven platforms and leading teams that ship.
         </p>
         <div ref={socialsRef} className={styles.heroSocials}>
           <a
@@ -98,11 +93,11 @@ export default function Hero() {
         </div>
         <div className={styles.scrollIndicator}>
           <span>Scroll</span>
-          <svg width="20" height="40" viewBox="0 0 20 40">
+          <svg width="16" height="32" viewBox="0 0 16 32">
             <path
-              d="M10 5 L10 30 M10 30 L5 25 M10 30 L15 25"
+              d="M8 4 L8 24 M8 24 L3 19 M8 24 L13 19"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="1.5"
               fill="none"
             />
           </svg>
