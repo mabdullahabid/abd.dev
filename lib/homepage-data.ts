@@ -1,4 +1,5 @@
 import { NotionAPI } from 'notion-client'
+import { getCanonicalPageId } from './get-canonical-page-id'
 
 const notion = new NotionAPI()
 
@@ -12,10 +13,7 @@ export interface BlogPost {
 
 export async function getHomepageData() {
   try {
-    // Fetch the blog posts collection
-    const collectionId = 'c7cbc279-6edb-4462-85c1-84ae5af1c7b6'
-    
-    // Fetch the page that contains the collection
+    // Fetch the root page which contains the blog posts collection
     const recordMap = await notion.getPage('16ccc94eb4cf4b3d85fb31ac7be58e87')
     
     const posts: BlogPost[] = []
@@ -28,9 +26,13 @@ export async function getHomepageData() {
         if (block.value && block.value.type === 'page' && block.value.parent_table === 'collection') {
           const properties = block.value.properties
           
+          // Skip pages without Public checkbox or where Public is false
+          const isPublic = block.value.properties?.['[ZmN'']?.[0]?.[0] === 'Yes'
+
           if (properties) {
             const title = properties.title?.[0]?.[0] || 'Untitled'
-            const slug = block.value.id.replace(/-/g, '')
+            // Use the canonical page ID which generates the proper URL slug
+            const slug = getCanonicalPageId(block.value.id, recordMap, { uuid: false }) || block.value.id.replace(/-/g, '')
             const date = properties.published?.[0]?.[1]?.[0]?.[1]?.start_date
             const tags = properties.tags?.[0]?.[0]?.split(',').map((t: string) => t.trim()) || []
             
