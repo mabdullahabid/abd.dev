@@ -1,6 +1,6 @@
 import { type GetStaticProps } from 'next'
 
-import { NotionPage } from '@/components/NotionPage'
+import { NotionPageWrapper } from '@/components/NotionPageWrapper'
 import { domain, isDev, pageUrlOverrides } from '@/lib/config'
 import { getSiteMap } from '@/lib/get-site-map'
 import { resolveNotionPage } from '@/lib/resolve-notion-page'
@@ -53,5 +53,5 @@ export async function getStaticPaths() {
 }
 
 export default function NotionDomainDynamicPage(props: PageProps) {
-  return <NotionPage {...props} />
+  return <NotionPageWrapper {...props} />
 }

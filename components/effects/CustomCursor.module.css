@@ -1,0 +1,42 @@
+.cursor,
+.cursorFollower {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: difference;
+  transition: transform 0.15s ease-out;
+}
+
+.cursor {
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.cursorFollower {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.3s ease-out, width 0.3s ease, height 0.3s ease;
+}
+
+.cursor.hovering {
+  transform: translate(-50%, -50%) scale(1.5);
+}
+
+.cursorFollower.hovering {
+  width: 50px;
+  height: 50px;
+  border-color: white;
+}
+
+@media (pointer: coarse) {
+  .cursor,
+  .cursorFollower {
+    display: none;
+  }
+}
