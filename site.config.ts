@@ -14,7 +14,8 @@ export default siteConfig({
   author: 'Abdullah Abid',
 
   // open graph metadata (optional)
-  description: 'Personal site of Abdullah Abid',
+  description:
+    'Abdullah Abid writes about software engineering, AI agents, and building with LLMs. Founder at Autonomous. Practical insights from real-world agentic systems.',
 
   // social usernames (optional)
   twitter: 'mabdullahabid_',
