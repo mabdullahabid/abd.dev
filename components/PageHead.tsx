@@ -21,7 +21,13 @@ export function PageHead({
 }) {
   const rssFeedUrl = `${config.host}/feed`
 
+  const isHomePage = url === config.host || url === `${config.host}/`
+
   title = title ?? site?.name
+  // Use a keyword-rich title for the homepage
+  if (isHomePage && title === site?.name) {
+    title = `${site?.name} — Engineering, AI Systems & Agentic Development`
+  }
   description = description ?? site?.description
 
   const socialImageUrl = getSocialImageUrl(pageId) || image
@@ -102,7 +108,49 @@ export function PageHead({
       <meta name='twitter:title' content={title} />
       <title>{title}</title>
 
-      {/* Better SEO for the blog posts */}
+      {/* Person + WebSite schema for homepage */}
+      {isHomePage && (
+        <script type='application/ld+json'>
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@graph': [
+              {
+                '@type': 'Person',
+                '@id': `${config.host}/#person`,
+                name: config.author,
+                url: config.host,
+                jobTitle: 'Founder & CTO',
+                worksFor: {
+                  '@type': 'Organization',
+                  name: 'Autonomous',
+                  url: 'https://autonomoustech.ca'
+                },
+                sameAs: [
+                  config.twitter
+                    ? `https://twitter.com/${config.twitter}`
+                    : null,
+                  config.github
+                    ? `https://github.com/${config.github}`
+                    : null,
+                  config.linkedin
+                    ? `https://linkedin.com/in/${config.linkedin}`
+                    : null
+                ].filter(Boolean)
+              },
+              {
+                '@type': 'WebSite',
+                '@id': `${config.host}/#website`,
+                url: config.host,
+                name: site?.name,
+                description: site?.description,
+                author: { '@id': `${config.host}/#person` }
+              }
+            ]
+          })}
+        </script>
+      )}
+
+      {/* Article schema for blog posts */}
       {isBlogPost && (
         <script type='application/ld+json'>
           {JSON.stringify({
@@ -116,7 +164,15 @@ export function PageHead({
             description,
             author: {
               '@type': 'Person',
-              name: config.author
+              '@id': `${config.host}/#person`,
+              name: config.author,
+              url: config.host
+            },
+            publisher: {
+              '@type': 'Person',
+              '@id': `${config.host}/#person`,
+              name: config.author,
+              url: config.host
             },
             image: socialImageUrl
           })}
