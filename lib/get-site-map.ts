@@ -27,7 +27,8 @@ export async function getSiteMap(): Promise<types.SiteMap> {
 }
 
 const getAllPages = pMemoize(getAllPagesImpl, {
-  cacheKey: (...args) => JSON.stringify(args)
+  cacheKey: (...args) => JSON.stringify(args),
+  maxAge: 30_000 // 30s TTL — prevents stale sitemap cache on warm serverless instances
 })
 
 const getPage = async (pageId: string, opts?: any) => {
