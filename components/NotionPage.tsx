@@ -237,7 +237,7 @@ export function NotionPage({
 
   // Get page title and metadata for tracking
   const pageTitle = React.useMemo(() => 
-    block ? getBlockTitle(block, recordMap) || site?.name : '', 
+    block && recordMap ? getBlockTitle(block, recordMap) || site?.name : '',
     [block, recordMap, site?.name]
   )
 
@@ -256,9 +256,9 @@ export function NotionPage({
     // Extract text content from blocks to estimate reading time
     let textContent = ''
     for (const blockWrapper of Object.values(recordMap.block || {})) {
-      const blockData = blockWrapper?.value
-      if (blockData?.properties?.title) {
-        textContent += blockData.properties.title[0]?.[0] || ''
+      const blockData = 'value' in blockWrapper ? blockWrapper.value : blockWrapper
+      if ((blockData as any)?.properties?.title) {
+        textContent += (blockData as any).properties.title[0]?.[0] || ''
       }
     }
     
@@ -267,7 +267,7 @@ export function NotionPage({
 
   // Enhanced page view tracking with metadata
   React.useEffect(() => {
-    if (!block || router.isFallback) return
+    if (!block || !recordMap || router.isFallback) return
 
     const publishDate = getPageProperty<string>('Published', block, recordMap)
     
