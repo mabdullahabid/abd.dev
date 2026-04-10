@@ -2,8 +2,6 @@ import type { Metadata } from 'next'
 
 import { NotionPageRoute } from '@/components/NotionPageRoute'
 import { getPageData } from '@/lib/get-page-data'
-import { getSiteMap } from '@/lib/get-site-map'
-import { isDev, pageUrlOverrides } from '@/lib/config'
 import { createPageMetadata } from '@/lib/page-metadata'
 
 interface DynamicPageProps {
@@ -16,19 +14,9 @@ export const revalidate = 10
 export const dynamicParams = true
 
 export async function generateStaticParams() {
-  if (isDev) {
-    return []
-  }
-
-  const siteMap = await getSiteMap()
-  const pageIds = [
-    ...new Set([
-      ...Object.keys(siteMap.canonicalPageMap),
-      ...Object.keys(pageUrlOverrides)
-    ])
-  ]
-
-  return pageIds.map((pageId) => ({ pageId }))
+  // Don't prerender any pages at build time to avoid Notion API rate limits (429).
+  // All pages are generated on-demand via ISR (see `revalidate` above).
+  return []
 }
 
 export async function generateMetadata({
