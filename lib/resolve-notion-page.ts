@@ -1,12 +1,18 @@
 import { type ExtendedRecordMap } from 'notion-types'
-import { parsePageId } from 'notion-utils'
+import { getCanonicalPageId, parsePageId } from 'notion-utils'
 
 import type { PageProps } from './types'
 import * as acl from './acl'
-import { environment, pageUrlAdditions, pageUrlOverrides, site } from './config'
+import {
+  environment,
+  includeNotionIdInUrls,
+  pageUrlAdditions,
+  pageUrlOverrides,
+  site
+} from './config'
 import { db } from './db'
 import { getSiteMap } from './get-site-map'
-import { getPage } from './notion'
+import { getPage, search } from './notion'
 
 export async function resolveNotionPage(
   domain: string,
@@ -50,36 +56,68 @@ export async function resolveNotionPage(
     if (pageId) {
       recordMap = await getPage(pageId)
     } else {
-      // handle mapping of user-friendly canonical page paths to Notion page IDs
-      // e.g., /developer-x-entrepreneur versus /71201624b204481f862630ea25ce62fe
-      const siteMap = await getSiteMap()
-      pageId = siteMap?.canonicalPageMap[rawPageId]
+      // Fast path: use Notion search API to resolve slug without crawling
+      // all pages. Convert slug back to search query (e.g. "my-page" → "my page")
+      const searchQuery = rawPageId.replace(/-/g, ' ')
+      try {
+        const searchResults = await search({
+          query: searchQuery,
+          ancestorId: site.rootNotionPageId
+        })
 
-      if (pageId) {
-        // TODO: we're not re-using the page recordMap from siteMaps because it is
-        // cached aggressively
-        // recordMap = siteMap.pageMap[pageId]
+        if (searchResults?.results?.length) {
+          for (const result of searchResults.results) {
+            const resultPageId = result.id
+            const resultRecordMap = await getPage(resultPageId)
+            const canonicalId = getCanonicalPageId(resultPageId, resultRecordMap, {
+              uuid: !!includeNotionIdInUrls
+            })
 
-        recordMap = await getPage(pageId)
+            if (canonicalId === rawPageId) {
+              pageId = resultPageId
+              recordMap = resultRecordMap
 
-        if (useUriToPageIdCache) {
-          try {
-            // update the database mapping of URI to pageId
-            await db.set(cacheKey, pageId, cacheTTL)
-
-            // console.log(`redis set "${cacheKey}"`, pageId, { cacheTTL })
-          } catch (err: any) {
-            // ignore redis errors
-            console.warn(`redis error set "${cacheKey}"`, err.message)
+              if (useUriToPageIdCache) {
+                try {
+                  await db.set(cacheKey, pageId, cacheTTL)
+                } catch (err: any) {
+                  console.warn(`redis error set "${cacheKey}"`, err.message)
+                }
+              }
+              break
+            }
           }
         }
-      } else {
+      } catch (err: any) {
+        console.warn('Notion search fallback failed:', err.message)
+      }
+
+      // Slow path: fall back to full sitemap crawl if search didn't resolve
+      if (!pageId) {
+        const siteMap = await getSiteMap()
+        pageId = siteMap?.canonicalPageMap[rawPageId]
+      }
+
+      if (!pageId) {
         // note: we're purposefully not caching URI to pageId mappings for 404s
         return {
           error: {
             message: `Not found "${rawPageId}"`,
             statusCode: 404
           }
+        }
+      }
+
+      // Fetch the page if not already loaded by the search fast path
+      if (!recordMap!) {
+        recordMap = await getPage(pageId)
+      }
+
+      if (useUriToPageIdCache) {
+        try {
+          await db.set(cacheKey, pageId, cacheTTL)
+        } catch (err: any) {
+          console.warn(`redis error set "${cacheKey}"`, err.message)
         }
       }
     }

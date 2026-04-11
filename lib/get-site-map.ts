@@ -54,7 +54,7 @@ async function getAllPagesImpl(
     rootNotionSpaceId,
     getPage,
     {
-      concurrency: 1,
+      concurrency: 3,
       maxDepth
     }
   )
