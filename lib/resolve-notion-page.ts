@@ -69,9 +69,13 @@ export async function resolveNotionPage(
           for (const result of searchResults.results) {
             const resultPageId = result.id
             const resultRecordMap = await getPage(resultPageId)
-            const canonicalId = getCanonicalPageId(resultPageId, resultRecordMap, {
-              uuid: !!includeNotionIdInUrls
-            })
+            const canonicalId = getCanonicalPageId(
+              resultPageId,
+              resultRecordMap,
+              {
+                uuid: !!includeNotionIdInUrls
+              }
+            )
 
             if (canonicalId === rawPageId) {
               pageId = resultPageId

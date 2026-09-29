@@ -64,7 +64,9 @@ export async function getPage(pageId: string): Promise<ExtendedRecordMap> {
   // The Notion API may return blockIds in an unexpected order (due to the
   // x-notion-space-id header added in notion-client v7.7.0).
   for (const collectionId of Object.keys(recordMap.collection_query || {})) {
-    for (const viewId of Object.keys(recordMap.collection_query[collectionId] || {})) {
+    for (const viewId of Object.keys(
+      recordMap.collection_query[collectionId] || {}
+    )) {
       const collectionViewWrapper = recordMap.collection_view?.[viewId] as any
       // Handle triple-nested structure: { spaceId, value: { value: { ...view } } }
       const collectionView =
