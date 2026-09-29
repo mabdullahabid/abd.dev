@@ -243,6 +243,15 @@ class Analytics {
     }
   }
 
+  // posthog-js only captures $pageleave on full unloads, so record it for
+  // client-side navigations too. The URL is passed in because it has already
+  // changed by the time the previous page's effects clean up.
+  trackClientPageLeave(url: string, pathname: string) {
+    if (!this.isInitialized) return
+
+    posthog.capture('$pageleave', { $current_url: url, $pathname: pathname })
+  }
+
   // Set user properties
   setUserProperties(properties: Record<string, any>) {
     if (!this.isInitialized) return

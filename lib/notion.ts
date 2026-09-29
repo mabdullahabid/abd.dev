@@ -43,14 +43,19 @@ const getNavigationLinkPages = pMemoize(
 )
 
 export async function getPage(pageId: string): Promise<ExtendedRecordMap> {
-  let recordMap = await notion.getPage(pageId)
+  // Fetch the page and the custom navigation header's pages in parallel
+  const [initialRecordMap, navigationLinkRecordMaps] = await Promise.all([
+    notion.getPage(pageId),
+    navigationStyle !== 'default'
+      ? getNavigationLinkPages()
+      : Promise.resolve([])
+  ])
+  let recordMap = initialRecordMap
 
   if (navigationStyle !== 'default') {
     // ensure that any pages linked to in the custom navigation header have
     // their block info fully resolved in the page record map so we know
     // the page title, slug, etc.
-    const navigationLinkRecordMaps = await getNavigationLinkPages()
-
     if (navigationLinkRecordMaps?.length) {
       recordMap = navigationLinkRecordMaps.reduce(
         (map, navigationLinkRecordMap) =>
@@ -132,12 +137,16 @@ export async function getPage(pageId: string): Promise<ExtendedRecordMap> {
     }
   }
 
+  const [previewImageMap] = await Promise.all([
+    isPreviewImageSupportEnabled
+      ? getPreviewImageMap(recordMap)
+      : Promise.resolve(undefined),
+    getTweetsMap(recordMap)
+  ])
+
   if (isPreviewImageSupportEnabled) {
-    const previewImageMap = await getPreviewImageMap(recordMap)
     ;(recordMap as any).preview_images = previewImageMap
   }
-
-  await getTweetsMap(recordMap)
 
   return recordMap
 }

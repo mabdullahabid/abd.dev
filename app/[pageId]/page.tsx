@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 
 import { NotionPageRoute } from '@/components/NotionPageRoute'
+import { isDev } from '@/lib/config'
 import { getPageData } from '@/lib/get-page-data'
+import { getPrerenderPageIds } from '@/lib/get-prerender-page-ids'
 import { createPageMetadata } from '@/lib/page-metadata'
 
 interface DynamicPageProps {
@@ -10,13 +12,25 @@ interface DynamicPageProps {
   }>
 }
 
-export const revalidate = 10
+// Serve cached pages and refresh them from Notion in the background at most
+// every 5 minutes. Use /api/revalidate to publish changes immediately.
+export const revalidate = 300
 export const dynamicParams = true
 
 export async function generateStaticParams() {
-  // Don't prerender any pages at build time to avoid Notion API rate limits (429).
-  // All pages are generated on-demand via ISR (see `revalidate` above).
-  return []
+  if (isDev) {
+    return []
+  }
+
+  // Prerender only the header's pages and the newest posts; all other pages
+  // render on first visit. Prerendering every page hit Notion's rate limits.
+  try {
+    const pageIds = await getPrerenderPageIds()
+    return pageIds.map((pageId) => ({ pageId }))
+  } catch (err: any) {
+    console.warn('skipping prerendering:', err.message)
+    return []
+  }
 }
 
 export async function generateMetadata({

@@ -34,7 +34,7 @@ export async function getSiteMap(): Promise<types.SiteMap> {
 export const getCanonicalPageMap = unstable_cache(
   async () => (await getSiteMap()).canonicalPageMap,
   ['canonical-page-map', config.rootNotionPageId],
-  { revalidate: 60 * 60 }
+  { revalidate: 60 * 60, tags: ['canonical-page-map'] }
 )
 
 const getAllPages = pMemoize(getAllPagesImpl, {
