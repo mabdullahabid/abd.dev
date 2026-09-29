@@ -5,6 +5,7 @@ import {
   uuidToId
 } from 'notion-utils'
 import { unstable_cache } from 'next/cache'
+import ExpiryMap from 'expiry-map'
 import pMemoize from 'p-memoize'
 
 import type * as types from './types'
@@ -37,8 +38,12 @@ export const getCanonicalPageMap = unstable_cache(
   { revalidate: 60 * 60, tags: ['canonical-page-map'] }
 )
 
+// Expire the in-memory crawl so warm serverless instances pick up new posts
+// (see nextjs-notion-starter-kit#319). The routes and caches built on top of
+// this refresh on their own schedules; this only bounds how stale they can be.
 const getAllPages = pMemoize(getAllPagesImpl, {
-  cacheKey: (...args) => JSON.stringify(args)
+  cacheKey: (...args) => JSON.stringify(args),
+  cache: new ExpiryMap(5 * 60 * 1000)
 })
 
 const getPage = async (pageId: string, opts?: any) => {
