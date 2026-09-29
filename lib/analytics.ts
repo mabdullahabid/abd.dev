@@ -56,6 +56,7 @@ class Analytics {
   private scrollMilestones = new Set<number>()
   private pageStartTime = 0
   private lastScrollPercentage = 0
+  private hasCompletedPost = false
 
   constructor() {
     if (typeof window !== 'undefined' && posthogId) {
@@ -74,14 +75,14 @@ class Analytics {
       referrer: document.referrer || undefined,
       user_agent: navigator.userAgent,
       screen_resolution: `${window.screen.width}x${window.screen.height}`,
-      viewport_size: `${window.innerWidth}x${window.innerHeight}`,
-      timestamp: new Date().toISOString()
+      viewport_size: `${window.innerWidth}x${window.innerHeight}`
     }
 
     posthog.capture('$pageview', enhancedProperties)
 
     // Reset tracking variables for new page
     this.scrollMilestones.clear()
+    this.hasCompletedPost = false
     this.pageStartTime = Date.now()
     this.lastScrollPercentage = 0
   }
@@ -91,8 +92,7 @@ class Analytics {
     if (!this.isInitialized) return
 
     posthog.capture('social_link_clicked', {
-      ...properties,
-      timestamp: new Date().toISOString()
+      ...properties
     })
   }
 
@@ -101,8 +101,7 @@ class Analytics {
     if (!this.isInitialized) return
 
     posthog.capture('theme_toggled', {
-      ...properties,
-      timestamp: new Date().toISOString()
+      ...properties
     })
   }
 
@@ -111,8 +110,7 @@ class Analytics {
     if (!this.isInitialized) return
 
     posthog.capture('link_clicked', {
-      ...properties,
-      timestamp: new Date().toISOString()
+      ...properties
     })
   }
 
@@ -121,8 +119,7 @@ class Analytics {
     if (!this.isInitialized) return
 
     posthog.capture('content_engagement', {
-      ...properties,
-      timestamp: new Date().toISOString()
+      ...properties
     })
   }
 
@@ -131,8 +128,7 @@ class Analytics {
     if (!this.isInitialized) return
 
     posthog.capture('blog_post_viewed', {
-      ...properties,
-      timestamp: new Date().toISOString()
+      ...properties
     })
   }
 
@@ -152,16 +148,21 @@ class Analytics {
           page_title: pageTitle,
           page_type: pageType
         })
-
-        // Track reading completion for blog posts
-        if (milestone === 100 && pageType === 'blog_post') {
-          posthog.capture('blog_post_completed', {
-            page_title: pageTitle,
-            time_to_complete: Date.now() - this.pageStartTime,
-            timestamp: new Date().toISOString()
-          })
-        }
       }
+    }
+
+    // Treat 90% as finished reading: footers usually keep scroll depth from
+    // reaching exactly 100%
+    if (
+      percentage >= 90 &&
+      pageType === 'blog_post' &&
+      !this.hasCompletedPost
+    ) {
+      this.hasCompletedPost = true
+      posthog.capture('blog_post_completed', {
+        page_title: pageTitle,
+        time_to_complete: Date.now() - this.pageStartTime
+      })
     }
 
     this.lastScrollPercentage = percentage
@@ -240,22 +241,6 @@ class Analytics {
       window.removeEventListener('scroll', throttledScroll)
       if (scrollTimeout) clearTimeout(scrollTimeout)
     }
-  }
-
-  // Track page leave
-  trackPageLeave(pageTitle?: string, pageType?: string) {
-    if (!this.isInitialized) return
-
-    const timeSpent = Date.now() - this.pageStartTime
-    const finalScrollPercentage = this.getScrollPercentage()
-
-    posthog.capture('page_left', {
-      page_title: pageTitle,
-      page_type: pageType,
-      time_spent: timeSpent,
-      final_scroll_percentage: finalScrollPercentage,
-      timestamp: new Date().toISOString()
-    })
   }
 
   // Set user properties

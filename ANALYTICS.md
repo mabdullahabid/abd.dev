@@ -61,19 +61,15 @@ The enhanced tracking system captures detailed user interactions while maintaini
 
 ### 7. Reading Completion (`blog_post_completed`)
 
-- **Triggers**: 100% scroll on blog posts
+- **Triggers**: 90% scroll on blog posts (footers usually prevent reaching 100%)
 - **Data Captured**:
   - Post title
   - Time to complete reading
   - Final scroll percentage
 
-### 8. Page Leave (`page_left`)
+### 8. Page Leave (`$pageleave`)
 
-- **Triggers**: User navigates away or closes tab
-- **Data Captured**:
-  - Time spent on page
-  - Final scroll percentage
-  - Page context
+- **Triggers**: User navigates away or closes tab (captured automatically by PostHog)
 
 ## Scroll Depth Tracking
 

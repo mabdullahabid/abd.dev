@@ -167,11 +167,27 @@ export const fathomConfig = fathomId
 
 export const posthogId = process.env.NEXT_PUBLIC_POSTHOG_ID
 export const posthogConfig: Partial<PostHogConfig> = {
-  api_host: 'https://app.posthog.com',
+  // Proxied through next.config.js rewrites so ad blockers don't drop events
+  api_host: '/ingest',
+  ui_host: 'https://us.posthog.com',
   // Pageviews are captured with page metadata by `analytics.trackPageView` in
   // NotionPage, so disable the automatic ones to avoid double counting
   capture_pageview: false,
-  capture_pageleave: true
+  capture_pageleave: true,
+  capture_performance: { web_vitals: true },
+  // Links are tracked by `link_clicked` (with internal/external), so leave them
+  // out of autocapture to avoid logging every link click twice
+  autocapture: {
+    element_allowlist: [
+      'button',
+      'form',
+      'input',
+      'select',
+      'textarea',
+      'label'
+    ]
+  },
+  disable_surveys: true
 }
 
 function cleanPageUrlMap(
