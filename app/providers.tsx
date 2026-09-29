@@ -3,12 +3,10 @@
 import * as Fathom from 'fathom-client'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { ThemeProvider, useTheme } from 'next-themes'
-import posthog from 'posthog-js'
 import * as React from 'react'
 
-import { enableAnalyticsDebug } from '@/lib/analytics-debug'
 import { bootstrap } from '@/lib/bootstrap-client'
-import { fathomConfig, fathomId, posthogConfig, posthogId } from '@/lib/config'
+import { fathomConfig, fathomId } from '@/lib/config'
 
 const themeClassNames = { dark: 'dark-mode', light: 'light-mode' }
 
@@ -71,14 +69,6 @@ function Analytics() {
 
     if (fathomId) {
       Fathom.load(fathomId, fathomConfig)
-    }
-
-    if (posthogId) {
-      posthog.init(posthogId, posthogConfig)
-
-      if (process.env.NODE_ENV === 'development') {
-        enableAnalyticsDebug()
-      }
     }
   }, [])
 
