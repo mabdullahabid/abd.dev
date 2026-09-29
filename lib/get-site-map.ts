@@ -79,7 +79,6 @@ async function getAllPagesImpl(
     (map: Record<string, string>, pageId: string) => {
       const recordMap = pageMap[pageId]
       if (!recordMap) {
-        console.warn(`Skipping page "${pageId}" — failed to load`)
         return map
       }
 
