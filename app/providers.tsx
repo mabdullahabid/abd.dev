@@ -6,7 +6,6 @@ import { ThemeProvider, useTheme } from 'next-themes'
 import posthog from 'posthog-js'
 import * as React from 'react'
 
-import { analytics } from '@/lib/analytics'
 import { enableAnalyticsDebug } from '@/lib/analytics-debug'
 import { bootstrap } from '@/lib/bootstrap-client'
 import { fathomConfig, fathomId, posthogConfig, posthogId } from '@/lib/config'
@@ -97,13 +96,6 @@ function Analytics() {
 
     if (fathomId) {
       Fathom.trackPageview()
-    }
-
-    if (posthogId) {
-      // Use our enhanced page view tracking instead of basic capture
-      analytics.trackPageView({
-        referrer: document.referrer || undefined
-      })
     }
   }, [url])
 
