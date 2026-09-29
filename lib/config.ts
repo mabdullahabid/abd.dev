@@ -167,7 +167,11 @@ export const fathomConfig = fathomId
 
 export const posthogId = process.env.NEXT_PUBLIC_POSTHOG_ID
 export const posthogConfig: Partial<PostHogConfig> = {
-  api_host: 'https://app.posthog.com'
+  api_host: 'https://app.posthog.com',
+  // Pageviews are captured with page metadata by `analytics.trackPageView` in
+  // NotionPage, so disable the automatic ones to avoid double counting
+  capture_pageview: false,
+  capture_pageleave: true
 }
 
 function cleanPageUrlMap(
