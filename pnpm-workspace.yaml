@@ -10,6 +10,10 @@ allowBuilds:
 enablePrePostScripts: true
 
 minimumReleaseAge: 1440
+# Refuse package versions whose publisher trust got weaker than earlier ones
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  - semver@6.3.1
 
 minimumReleaseAgeExclude:
   - '@fisch0920/config'

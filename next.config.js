@@ -50,6 +50,10 @@ export default {
     ],
     formats: ['image/avif', 'image/webp'],
     dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;"
+    // Serve optimized images as downloads rather than inline documents, so an
+    // SVG can't run as a page on our origin
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    minimumCacheTTL: 604_800 // 7 days
   }
 }
