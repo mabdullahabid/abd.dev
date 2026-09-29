@@ -4,6 +4,7 @@ import cs from 'classnames'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   formatDate,
   getBlockTitle,
@@ -181,9 +182,32 @@ const propertyTextValue = (
   return defaultFn()
 }
 
+// react-notion-x v8 wraps `nextLink` but never uses it for internal page links,
+// which then render as plain <a> tags and trigger full page reloads. Passing a
+// Next.js-backed PageLink restores client-side navigation.
+//
+// Viewport prefetching is disabled: on listing pages it would render every
+// linked post at once and trip Notion's rate limits. Prefetch on hover instead.
+function PageLink({ href, onMouseEnter, ...props }: React.ComponentProps<'a'>) {
+  const router = useRouter()
+
+  return (
+    <Link
+      href={href!}
+      prefetch={false}
+      onMouseEnter={(event) => {
+        if (href) router.prefetch(href)
+        onMouseEnter?.(event)
+      }}
+      {...props}
+    />
+  )
+}
+
 const notionRendererComponents: Partial<NotionComponents> = {
   nextImage: Image,
   nextLink: Link,
+  PageLink,
   Code,
   Collection,
   Equation,
@@ -257,9 +281,14 @@ export function NotionPage({
     return analytics.estimateReadingTime(textContent)
   }, [isBlogPost, recordMap])
 
-  // Enhanced page view tracking with metadata
+  // Enhanced page view tracking with metadata. The ref keeps it to one
+  // pageview per page: the record map can change identity more than once
+  // during a client-side navigation, which re-runs this effect.
+  const trackedPageIdRef = React.useRef<string | undefined>(undefined)
+
   React.useEffect(() => {
-    if (!block) return
+    if (!block || trackedPageIdRef.current === pageId) return
+    trackedPageIdRef.current = pageId
 
     const publishDate = getPageProperty<string>('Published', block, recordMap)
 
@@ -292,6 +321,8 @@ export function NotionPage({
   React.useEffect(() => {
     if (!pageTitle) return
 
+    const pageUrl = window.location.href
+    const pagePathname = window.location.pathname
     const cleanup = analytics.initializeScrollTracking(pageTitle, pageType)
 
     // Track time on page at intervals
@@ -311,6 +342,9 @@ export function NotionPage({
     }
 
     return () => {
+      // Runs on client-side navigation to another page (not on full unloads,
+      // where posthog-js captures $pageleave itself)
+      analytics.trackClientPageLeave(pageUrl, pagePathname)
       cleanup?.()
       for (const timeout of timeouts) {
         clearTimeout(timeout)
