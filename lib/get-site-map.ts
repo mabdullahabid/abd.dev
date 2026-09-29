@@ -4,6 +4,7 @@ import {
   getPageProperty,
   uuidToId
 } from 'notion-utils'
+import { unstable_cache } from 'next/cache'
 import pMemoize from 'p-memoize'
 
 import type * as types from './types'
@@ -25,6 +26,16 @@ export async function getSiteMap(): Promise<types.SiteMap> {
     ...partialSiteMap
   } as types.SiteMap
 }
+
+/**
+ * Slug → page ID map, stored in Next's shared data cache so serverless
+ * instances don't each re-crawl Notion to resolve (or reject) a slug.
+ */
+export const getCanonicalPageMap = unstable_cache(
+  async () => (await getSiteMap()).canonicalPageMap,
+  ['canonical-page-map', config.rootNotionPageId],
+  { revalidate: 60 * 60 }
+)
 
 const getAllPages = pMemoize(getAllPagesImpl, {
   cacheKey: (...args) => JSON.stringify(args)

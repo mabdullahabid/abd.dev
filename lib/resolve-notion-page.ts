@@ -1,5 +1,5 @@
 import { type ExtendedRecordMap } from 'notion-types'
-import { getCanonicalPageId, parsePageId } from 'notion-utils'
+import { parsePageId } from 'notion-utils'
 
 import type { PageProps } from './types'
 import * as acl from './acl'
@@ -11,7 +11,8 @@ import {
   site
 } from './config'
 import { db } from './db'
-import { getSiteMap } from './get-site-map'
+import { getCanonicalPageId } from './get-canonical-page-id'
+import { getCanonicalPageMap } from './get-site-map'
 import { getPage, search } from './notion'
 
 export async function resolveNotionPage(
@@ -53,76 +54,41 @@ export async function resolveNotionPage(
       }
     }
 
-    if (pageId) {
-      recordMap = await getPage(pageId)
-    } else {
-      // Fast path: use Notion search API to resolve slug without crawling
-      // all pages. Convert slug back to search query (e.g. "my-page" → "my page")
-      const searchQuery = rawPageId.replace(/-/g, ' ')
+    const isResolvedFromSlug = !pageId
+
+    if (!pageId) {
+      // Check the cached slug → page ID map first; it's shared across
+      // serverless instances, so this avoids crawling Notion per request.
       try {
-        const searchResults = await search({
-          query: searchQuery,
-          ancestorId: site.rootNotionPageId
-        })
-
-        if (searchResults?.results?.length) {
-          for (const result of searchResults.results) {
-            const resultPageId = result.id
-            const resultRecordMap = await getPage(resultPageId)
-            const canonicalId = getCanonicalPageId(
-              resultPageId,
-              resultRecordMap,
-              {
-                uuid: !!includeNotionIdInUrls
-              }
-            )
-
-            if (canonicalId === rawPageId) {
-              pageId = resultPageId
-              recordMap = resultRecordMap
-
-              if (useUriToPageIdCache) {
-                try {
-                  await db.set(cacheKey, pageId, cacheTTL)
-                } catch (err: any) {
-                  console.warn(`redis error set "${cacheKey}"`, err.message)
-                }
-              }
-              break
-            }
-          }
-        }
+        const canonicalPageMap = await getCanonicalPageMap()
+        pageId = canonicalPageMap[rawPageId]
       } catch (err: any) {
-        console.warn('Notion search fallback failed:', err.message)
+        console.warn('canonical page map lookup failed:', err.message)
       }
+    }
 
-      // Slow path: fall back to full sitemap crawl if search didn't resolve
-      if (!pageId) {
-        const siteMap = await getSiteMap()
-        pageId = siteMap?.canonicalPageMap[rawPageId]
-      }
+    if (!pageId) {
+      // Pages published after the cached map was built: fall back to Notion search
+      pageId = await findPageIdViaSearch(rawPageId)
+    }
 
-      if (!pageId) {
-        // note: we're purposefully not caching URI to pageId mappings for 404s
-        return {
-          error: {
-            message: `Not found "${rawPageId}"`,
-            statusCode: 404
-          }
+    if (!pageId) {
+      // note: we're purposefully not caching URI to pageId mappings for 404s
+      return {
+        error: {
+          message: `Not found "${rawPageId}"`,
+          statusCode: 404
         }
       }
+    }
 
-      // Fetch the page if not already loaded by the search fast path
-      if (!recordMap!) {
-        recordMap = await getPage(pageId)
-      }
+    recordMap = await getPage(pageId)
 
-      if (useUriToPageIdCache) {
-        try {
-          await db.set(cacheKey, pageId, cacheTTL)
-        } catch (err: any) {
-          console.warn(`redis error set "${cacheKey}"`, err.message)
-        }
+    if (isResolvedFromSlug && useUriToPageIdCache) {
+      try {
+        await db.set(cacheKey, pageId, cacheTTL)
+      } catch (err: any) {
+        console.warn(`redis error set "${cacheKey}"`, err.message)
       }
     }
   } else {
@@ -134,4 +100,36 @@ export async function resolveNotionPage(
 
   const props: PageProps = { site, recordMap, pageId }
   return { ...props, ...(await acl.pageAcl(props)) }
+}
+
+async function findPageIdViaSearch(
+  rawPageId: string
+): Promise<string | undefined> {
+  // Convert slug back to search query (e.g. "my-page" → "my page")
+  const query = rawPageId.replaceAll('-', ' ')
+  const uuid = !!includeNotionIdInUrls
+
+  try {
+    const searchResults = await search({
+      query,
+      ancestorId: site.rootNotionPageId
+    })
+    const results = searchResults?.results ?? []
+
+    // Match against the blocks returned alongside the search results, which is
+    // enough to build canonical IDs without loading each page in full
+    for (const result of results) {
+      const canonicalId = getCanonicalPageId(
+        result.id,
+        searchResults.recordMap as ExtendedRecordMap,
+        { uuid }
+      )
+
+      if (canonicalId === rawPageId) {
+        return result.id
+      }
+    }
+  } catch (err: any) {
+    console.warn('Notion search fallback failed:', err.message)
+  }
 }
