@@ -14,7 +14,8 @@ export default siteConfig({
   author: 'Abdullah Abid',
 
   // open graph metadata (optional)
-  description: 'Personal site of Abdullah Abid',
+  description:
+    'Engineering leader writing about AI agents, software engineering, infrastructure, and leading teams that ship.',
 
   // social usernames (optional)
   twitter: 'mabdullahabid_',
