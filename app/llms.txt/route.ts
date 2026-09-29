@@ -11,7 +11,9 @@ import * as config from '@/lib/config'
 import { getSiteMap } from '@/lib/get-site-map'
 import { getMarkdownUrl } from '@/lib/page-metadata'
 
-export const revalidate = 28_800
+// Rebuilt at most hourly (one crawl of the Notion workspace), so new posts
+// show up within about an hour
+export const revalidate = 3600
 
 interface PublicPageSummary {
   isArticle: boolean
@@ -60,7 +62,7 @@ export async function GET() {
 
   return new Response(createLlmsTxt({ articles, supportingPages }), {
     headers: {
-      'Cache-Control': 'public, max-age=28800, stale-while-revalidate=28800',
+      'Cache-Control': 'public, max-age=3600, stale-while-revalidate=3600',
       'Content-Type': 'text/markdown; charset=utf-8'
     }
   })

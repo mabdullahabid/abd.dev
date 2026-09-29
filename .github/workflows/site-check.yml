@@ -2,7 +2,7 @@ name: Site check
 
 on:
   schedule:
-    # 10:00 UTC = 3am in Vancouver (PDT)
+    # 10:00 UTC = 3am Pacific (PDT)
     - cron: '0 10 * * *'
   workflow_dispatch:
     inputs:
