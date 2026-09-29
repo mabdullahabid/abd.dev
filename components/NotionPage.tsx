@@ -310,9 +310,7 @@ export function NotionPage({
       timeouts.push(timeout)
     }
 
-    // Track page leave when component unmounts
     return () => {
-      analytics.trackPageLeave(pageTitle, pageType)
       cleanup?.()
       for (const timeout of timeouts) {
         clearTimeout(timeout)
