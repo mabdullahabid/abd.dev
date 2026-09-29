@@ -15,7 +15,7 @@ export default siteConfig({
 
   // open graph metadata (optional)
   description:
-    'Engineering leader in Vancouver writing about AI agents, software engineering, infrastructure, and leading teams that ship.',
+    'Engineering leader writing about AI agents, software engineering, infrastructure, and leading teams that ship.',
 
   // social usernames (optional)
   twitter: 'mabdullahabid_',
