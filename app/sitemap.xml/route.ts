@@ -2,14 +2,16 @@ import { host } from '@/lib/config'
 import { getSiteMap } from '@/lib/get-site-map'
 import type { SiteMap } from '@/lib/types'
 
-export const revalidate = 28_800
+// Rebuilt at most hourly (one crawl of the Notion workspace), so new posts
+// show up within about an hour
+export const revalidate = 3600
 
 export async function GET() {
   const siteMap = await getSiteMap()
 
   return new Response(createSitemap(siteMap), {
     headers: {
-      'Cache-Control': 'public, max-age=28800, stale-while-revalidate=28800',
+      'Cache-Control': 'public, max-age=3600, stale-while-revalidate=3600',
       'Content-Type': 'text/xml'
     }
   })

@@ -78,14 +78,33 @@ for (const path of postPaths.slice(0, recentPostCount)) {
   await checkPage(path)
 }
 
-// Every page linked from the home page should be in the sitemap
-const sitemap = await fetchPage('/sitemap.xml')
-if (sitemap.status !== 200) {
-  fail(`/sitemap.xml returned ${sitemap.error ?? sitemap.status}`)
+// Every page linked from the home page should be in the sitemap. The sitemap
+// is cached for up to an hour, and a stale copy is rebuilt in the background
+// on request, so re-check after a pause before reporting a recently published
+// post as missing.
+const findMissingFromSitemap = async () => {
+  const sitemap = await fetchPage('/sitemap.xml')
+  if (sitemap.status !== 200) {
+    return { error: `/sitemap.xml returned ${sitemap.error ?? sitemap.status}` }
+  }
+
+  return {
+    missing: linkedPaths.filter(
+      (path) => !sitemap.text.includes(`<loc>${siteUrl}${path}</loc>`)
+    )
+  }
+}
+
+let sitemapResult = await findMissingFromSitemap()
+if (sitemapResult.missing?.length) {
+  await new Promise((resolve) => setTimeout(resolve, 90_000))
+  sitemapResult = await findMissingFromSitemap()
+}
+
+if (sitemapResult.error) {
+  fail(sitemapResult.error)
 } else {
-  const missing = linkedPaths.filter(
-    (path) => !sitemap.text.includes(`<loc>${siteUrl}${path}</loc>`)
-  )
+  const { missing } = sitemapResult
 
   if (missing.length) {
     fail(
