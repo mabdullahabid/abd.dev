@@ -16,6 +16,8 @@ import Script from 'next/script'
 import type { ReactNode } from 'react'
 
 import * as config from '@/lib/config'
+import { createSiteJsonLd, serializeJsonLd } from '@/lib/json-ld'
+import { siteIdentity } from '@/lib/site-identity'
 
 import { Providers } from './providers'
 
@@ -81,10 +83,17 @@ export const viewport: Viewport = {
   ]
 }
 
+// Describes the site's author and the site itself to search engines
+const siteJsonLd = serializeJsonLd(createSiteJsonLd(siteIdentity))
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang='en' suppressHydrationWarning>
+    <html lang={config.language} suppressHydrationWarning>
       <body>
+        <script
+          type='application/ld+json'
+          dangerouslySetInnerHTML={{ __html: siteJsonLd }}
+        />
         <Providers>{children}</Providers>
 
         <Script id='flowise-chatbot' type='module' strategy='lazyOnload'>

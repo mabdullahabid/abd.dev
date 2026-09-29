@@ -81,6 +81,10 @@ export function createPageMetadata(pageProps: PageProps): Metadata {
     alternates: {
       canonical: canonicalPageUrl,
       types: {
+        // Markdown version of this page for AI tools (app/-/markdown)
+        ...(canonicalPageUrl && {
+          'text/markdown': getMarkdownUrl(canonicalPageUrl)
+        }),
         'application/rss+xml': [
           {
             url: '/feed',
@@ -110,4 +114,10 @@ export function createPageMetadata(pageProps: PageProps): Metadata {
         }
       : undefined
   }
+}
+
+/** Path of the Markdown version of a page, served by app/-/markdown */
+export function getMarkdownUrl(pageUrl: string): string {
+  const { pathname } = new URL(pageUrl)
+  return pathname === '/' ? '/-/markdown' : `/-/markdown${pathname}`
 }

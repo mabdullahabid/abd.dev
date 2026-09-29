@@ -47,6 +47,9 @@ importers:
       notion-utils:
         specifier: ^8.0.8
         version: 8.0.8
+      notion-x-to-md:
+        specifier: ^8.0.8
+        version: 8.0.8
       p-map:
         specifier: ^7.0.7
         version: 7.0.7
@@ -1041,6 +1044,9 @@ packages:
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
 
+  date-fns@4.4.0:
+    resolution: {integrity: sha512-+1UMbeh68lH1SegH83CGWwpb6OHHbpSgr3+s5Eww5M4CAgswBpoWS0AjTOfEJ33HiYKz1hdj/KTFprzXHmq/6w==}
+
   debug@4.4.3:
     resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
     engines: {node: '>=6.0'}
@@ -1102,6 +1108,9 @@ packages:
 
   fflate@0.4.9:
     resolution: {integrity: sha512-zdxgIEddhfsyCaWpJ2SdXEP8ZMrKJ6+5jl4OupODcywU0IhRk6gdXuVGcPICyfx2H97hVK7xmJtRLPjkxAX8Vw==}
+
+  format-number@3.0.0:
+    resolution: {integrity: sha512-RWcbtINcRZ2DWCo4EcJgOJUYIwtsY5LKlTtL5OX1vfGsxEEK5mKaGxZC0p4Mgy63vXR12rut3lnjwCQ8YIlRMw==}
 
   gensync@1.0.0-beta.2:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
@@ -1284,6 +1293,11 @@ packages:
   notion-utils@8.0.8:
     resolution: {integrity: sha512-TGOmuJqOjOXeBhi1Tab8OyuAUSDrNi8C4skRpIwRGrBGZCKtql2WB9BwcAgNQCt+bwUlyQfmPmEnI7DwibythQ==}
     engines: {node: '>=18'}
+
+  notion-x-to-md@8.0.8:
+    resolution: {integrity: sha512-D/PKS/aGU6y+Tff0STaTYHlhraFpv8WYNGl/Bo7pUESaSSHb8OCOEixzSJ++EMQ15D4OF6hoBcCEjHXCxRFZrw==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   npm-normalize-package-bin@6.0.0:
     resolution: {integrity: sha512-tdt4aFn9QamlhdN3HV2D2ccpBwO5/fyjjbXUxYA6uBjyekMZcZvDq0aSj9t5Jo+tih6AYFnt/cuIRn9013e0Uw==}
@@ -1617,6 +1631,11 @@ packages:
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
+
+  tweet-to-md@1.1.2:
+    resolution: {integrity: sha512-OoXv/6WlDNPCXhp0DMNnlBIzf0Zi8D+Z2hY+oabcMOYak+K2TsSWGSMyCKov+81BEqdEfdzYPoyJvCh+ylbWgg==}
+    engines: {node: '>=20'}
+    hasBin: true
 
   type-fest@4.41.0:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
@@ -2319,6 +2338,8 @@ snapshots:
 
   csstype@3.2.3: {}
 
+  date-fns@4.4.0: {}
+
   debug@4.4.3(supports-color@7.2.0):
     dependencies:
       ms: 2.1.3
@@ -2364,6 +2385,8 @@ snapshots:
   fathom-client@3.7.2: {}
 
   fflate@0.4.9: {}
+
+  format-number@3.0.0: {}
 
   gensync@1.0.0-beta.2:
     optional: true
@@ -2534,6 +2557,17 @@ snapshots:
       normalize-url: 9.0.1
       notion-types: 8.0.8
       p-queue: 9.3.3
+
+  notion-x-to-md@8.0.8:
+    dependencies:
+      commander: 15.0.0
+      date-fns: 4.4.0
+      format-number: 3.0.0
+      notion-client: 8.0.8
+      notion-types: 8.0.8
+      notion-utils: 8.0.8
+      p-map: 7.0.7
+      tweet-to-md: 1.1.2
 
   npm-normalize-package-bin@6.0.0: {}
 
@@ -2918,6 +2952,10 @@ snapshots:
   ts-easing@0.2.0: {}
 
   tslib@2.8.1: {}
+
+  tweet-to-md@1.1.2:
+    dependencies:
+      commander: 15.0.0
 
   type-fest@4.41.0: {}
 

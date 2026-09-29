@@ -41,6 +41,7 @@
     "notion-client": "^8.0.8",
     "notion-types": "^8.0.8",
     "notion-utils": "^8.0.8",
+    "notion-x-to-md": "^8.0.8",
     "p-map": "^7.0.7",
     "p-memoize": "^8.0.0",
     "posthog-js": "^1.434.17",
