@@ -63,6 +63,7 @@ export interface PageUrlOverridesInverseMap {
 export interface NotionPageInfo {
   pageId: string
   title: string
+  description?: string
   image?: string
   imageObjectPosition?: string
   author?: string

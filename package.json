@@ -23,6 +23,7 @@
     "test:format": "oxfmt --check",
     "test:lint": "oxlint",
     "test:typecheck": "tsc --noEmit",
+    "test:unit": "vitest run",
     "fix": "run-s fix:*",
     "fix:format": "oxfmt",
     "fix:lint": "oxlint --fix"
@@ -67,7 +68,8 @@
     "oxlint": "^1.81.0",
     "oxlint-tsgolint": "^7.0.2001",
     "simple-git-hooks": "^2.14.0",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"
