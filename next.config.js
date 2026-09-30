@@ -9,6 +9,8 @@ export default {
 
     return {
       beforeFiles: [
+        // See app/pages-sitemap.xml/route.ts for why the sitemap lives there
+        { source: '/sitemap.xml', destination: '/pages-sitemap.xml' },
         { source: '/', has: acceptsMarkdown, destination: '/-/markdown' },
         {
           source: '/:pageId',

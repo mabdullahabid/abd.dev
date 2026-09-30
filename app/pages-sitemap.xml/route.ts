@@ -2,6 +2,11 @@ import { host } from '@/lib/config'
 import { getSiteMap } from '@/lib/get-site-map'
 import type { SiteMap } from '@/lib/types'
 
+// Served at /sitemap.xml via a rewrite in next.config.js. It lives at this path
+// because Next.js treats /sitemap.xml as a metadata route and emits it as a
+// static file on Vercel, dropping `revalidate`, so it would only update on
+// redeploy: https://github.com/vercel/next.js/issues/99055
+//
 // Rebuilt at most hourly (one crawl of the Notion workspace), so new posts
 // show up within about an hour
 export const revalidate = 3600
