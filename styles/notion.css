@@ -455,3 +455,33 @@
     padding-bottom: 6px;
   }
 }
+
+/* Tables: scroll sideways inside their own box instead of widening the whole
+   page on phones, and keep Notion's column widths rather than squeezing each
+   column to a word per line */
+.notion-simple-table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.notion-simple-table td {
+  min-width: 120px;
+}
+
+/* Code blocks: long lines scroll inside the block (the prism-coy theme sets
+   `overflow: visible`, which let them widen the page) */
+pre.notion-code {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Monospace stack without `Courier`, which Android maps to a wide typewriter
+   font; system monospace fonts come first on every platform */
+.notion-inline-code,
+.notion-code,
+.notion-code code {
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono',
+    'Roboto Mono', 'Droid Sans Mono', monospace;
+}
